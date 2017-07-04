@@ -87,7 +87,7 @@ class LdapAuthProvider(object):
         localpart = user_id.split(":", 1)[0][1:]
 
         try:
-            self._ldap_set_encoding()
+            yield self._ldap_set_encoding()
             server = ldap3.Server(self.ldap_uri, get_info=None)
             logger.debug(
                 "Attempting LDAP connection with %s",
