@@ -260,7 +260,6 @@ class LdapAuthProvider(object):
 
         return ldap_config
 
-    @defer.inlineCallbacks
     def _ldap_set_encoding(self):
         """ Set the default encoding for the LDAP server.
         """
