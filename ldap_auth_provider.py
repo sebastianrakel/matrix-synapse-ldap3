@@ -34,13 +34,6 @@ try:
         LDAP_AUTH_SIMPLE = ldap3.AUTH_SIMPLE
     except AttributeError:
         LDAP_AUTH_SIMPLE = ldap3.SIMPLE
-
-    try:
-        ldap3.set_config_parameter('DEFAULT_ENCODING', 'UTF-8')
-    except AttributeError:
-        pass
-    except ldap3.core.exceptions.LDAPConfigurationParameterError:
-        pass
     
 except ImportError:
     ldap3 = None
@@ -74,10 +67,19 @@ class LdapAuthProvider(object):
         self.ldap_start_tls = config.start_tls
         self.ldap_base = config.base
         self.ldap_attributes = config.attributes
+        self.ldap_encoding = config.encoding
         if self.ldap_mode == LDAPMode.SEARCH:
             self.ldap_bind_dn = config.bind_dn
             self.ldap_bind_password = config.bind_password
             self.ldap_filter = config.filter
+
+        if self.ldap_encoding is not None:            
+            try:
+                ldap3.set_config_parameter('DEFAULT_ENCODING', self.ldap_encoding)
+            except AttributeError:
+                pass
+            except ldap3.core.exceptions.LDAPConfigurationParameterError:
+                pass
 
     @defer.inlineCallbacks
     def check_password(self, user_id, password):
@@ -243,6 +245,7 @@ class LdapAuthProvider(object):
         ldap_config.start_tls = config.get("start_tls", False)
         ldap_config.base = config["base"]
         ldap_config.attributes = config["attributes"]
+        ldap_config.encoding = config.get("encoding", None)
 
         if "bind_dn" in config:
             ldap_config.mode = LDAPMode.SEARCH
@@ -253,8 +256,8 @@ class LdapAuthProvider(object):
 
             ldap_config.bind_dn = config["bind_dn"]
             ldap_config.bind_password = config["bind_password"]
-            ldap_config.filter = config.get("filter", None)
-
+            ldap_config.filter = config.get("filter", None)        
+            
         # verify attribute lookup
         _require_keys(config['attributes'], [
             "uid",
