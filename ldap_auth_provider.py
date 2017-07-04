@@ -73,18 +73,6 @@ class LdapAuthProvider(object):
             self.ldap_bind_password = config.bind_password
             self.ldap_filter = config.filter
 
-        if self.ldap_encoding is not None:            
-            try:
-                ldap3.set_config_parameter('DEFAULT_ENCODING', self.ldap_encoding)
-                logger.debug(
-                    "Set default encoding to %s",
-                    self.ldap_encoding
-                )
-            except AttributeError:
-                pass
-            except ldap3.core.exceptions.LDAPConfigurationParameterError:
-                pass
-
     @defer.inlineCallbacks
     def check_password(self, user_id, password):
         """ Attempt to authenticate a user against an LDAP Server
@@ -99,6 +87,7 @@ class LdapAuthProvider(object):
         localpart = user_id.split(":", 1)[0][1:]
 
         try:
+            self._ldap_set_encoding()
             server = ldap3.Server(self.ldap_uri, get_info=None)
             logger.debug(
                 "Attempting LDAP connection with %s",
@@ -270,6 +259,22 @@ class LdapAuthProvider(object):
         ])
 
         return ldap_config
+
+    @defer.inlineCallbacks
+    def _ldap_set_encoding(self):
+        """ Set the default encoding for the LDAP server.
+        """
+        if self.ldap_encoding is not None:            
+            try:
+                ldap3.set_config_parameter('DEFAULT_ENCODING', self.ldap_encoding)
+                logger.debug(
+                    "Set default encoding to %s",
+                    self.ldap_encoding
+                )
+            except AttributeError:
+                pass
+            except ldap3.core.exceptions.LDAPConfigurationParameterError:
+                pass
 
     @defer.inlineCallbacks
     def _ldap_simple_bind(self, server, bind_dn, password):
