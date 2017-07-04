@@ -76,6 +76,10 @@ class LdapAuthProvider(object):
         if self.ldap_encoding is not None:            
             try:
                 ldap3.set_config_parameter('DEFAULT_ENCODING', self.ldap_encoding)
+                logger.debug(
+                    "Set default encoding to %s",
+                    self.ldap_encoding
+                )
             except AttributeError:
                 pass
             except ldap3.core.exceptions.LDAPConfigurationParameterError:
