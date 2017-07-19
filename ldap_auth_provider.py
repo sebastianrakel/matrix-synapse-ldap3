@@ -291,8 +291,7 @@ class LdapAuthProvider(object):
                 read_only=True,
             )
             logger.debug(
-                "Established LDAP connection in simple bind mode: %s",
-                conn
+                "Established LDAP connection in simple bind mode"
             )
 
             if self.ldap_start_tls:
@@ -300,8 +299,7 @@ class LdapAuthProvider(object):
                 yield threads.deferToThread(conn.start_tls)
                 logger.debug(
                     "Upgraded LDAP connection in simple bind mode through "
-                    "StartTLS: %s",
-                    conn
+                    "StartTLS"
                 )
 
             if (yield threads.deferToThread(conn.bind)):
